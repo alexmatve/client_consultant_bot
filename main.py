@@ -17,7 +17,8 @@ async def main():
     dp = Dispatcher(storage=storage)
     bot = Bot(bot_token, parse_mode=None)
     logging.basicConfig(level=logging.INFO)
-
+    
+    #@dp.channel_post()
     @dp.message(Command(commands=["start"]))
     async def repl(message):
         global sales_agent
@@ -27,7 +28,8 @@ async def main():
         ai_message = sales_agent.ai_step()
         await message.answer(ai_message)
         await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id + 1)
-
+        
+    #@dp.channel_post()
     @dp.message(F.text)
     async def repl(message):
         if sales_agent is None:
@@ -42,10 +44,13 @@ async def main():
             await message.answer(ai_message)
             await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id + 1)
 
+    @dp.channel_post()
     @dp.message(~F.text)
     async def empty(message):
         await message.answer('Бот принимает только текст')
 
+    #await bot.delete_webhook(drop_pending_updates=True)
+    #dp.start_polling(bot, allowed_updates=['channel_post'])
     await dp.start_polling(bot)
 
 
